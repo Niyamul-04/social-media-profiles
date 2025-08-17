@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect with Me</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    margin:0;
+    overflow:hidden;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #000000, #0a0a0f 80%);
+    color:white;
+  }
+
+  canvas {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    z-index:-2;
+  }
+
+  .btn-glow {
+    transition: transform 0.2s, box-shadow 0.3s;
+  }
+  .btn-glow:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 25px rgba(0,255,255,0.7), 0 0 35px rgba(255,0,255,0.7);
+  }
+
+  .icon-hover:hover {
+    animation: bounceIcon 0.6s;
+  }
+  @keyframes bounceIcon {
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-6px);}
+  }
+
+  @keyframes fadeIn{
+    0% {opacity:0; transform:translateY(-10px);}
+    100% {opacity:1; transform:translateY(0);}
+  }
+  .animate-fadeIn{animation:fadeIn 0.5s forwards;}
+</style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 relative">
+
+<canvas id="particles"></canvas>
+
+<div class="w-full max-w-md p-6 bg-gray-900/30 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-800 relative z-10">
+  <h2 class="text-center text-3xl font-bold text-white mb-6">Connect with Me</h2>
+  <div class="flex flex-col space-y-4">
+
+    <a href="#" class="btn-glow flex items-center space-x-4 p-4 rounded-xl border bg-blue-800 text-white relative group">
+      <img src="icon-facebook.png" alt="Facebook" class="w-10 h-10 md:w-12 md:h-12 rounded icon-hover">
+      <span class="text-lg md:text-xl font-medium">Facebook</span>
+    </a>
+
+    <a href="#" class="btn-glow flex items-center space-x-4 p-4 rounded-xl border bg-pink-600 text-white relative group">
+      <img src="2227.jpg" alt="Instagram" class="w-10 h-10 md:w-12 md:h-12 rounded icon-hover">
+      <span class="text-lg md:text-xl font-medium">Instagram</span>
+    </a>
+
+    <a href="#" class="btn-glow flex items-center space-x-4 p-4 rounded-xl border bg-gray-800 text-white relative group">
+      <img src="Octicons-mark-github.svg.png" alt="GitHub" class="w-10 h-10 md:w-12 md:h-12 rounded icon-hover">
+      <span class="text-lg md:text-xl font-medium">GitHub</span>
+    </a>
+
+    <a href="#" class="btn-glow flex items-center space-x-4 p-4 rounded-xl border bg-blue-900 text-white relative group">
+      <img src="icon-linkedin.png" alt="LinkedIn" class="w-10 h-10 md:w-12 md:h-12 rounded icon-hover">
+      <span class="text-lg md:text-xl font-medium">LinkedIn</span>
+    </a>
+
+    <a href="#" class="btn-glow flex items-center space-x-4 p-4 rounded-xl border bg-red-700 text-white relative group">
+      <img src="icon-youtube.png" alt="YouTube" class="w-10 h-10 md:w-12 md:h-12 rounded icon-hover">
+      <span class="text-lg md:text-xl font-medium">YouTube</span>
+    </a>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w,h;
+  function resize(){ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight;}
+  window.addEventListener('resize', resize);
+  resize();
+
+  const mouse={x:null, y:null, radius:150};
+  window.addEventListener('mousemove', e=>{mouse.x=e.x; mouse.y=e.y;});
+
+  const particles=[];
+  const particleCount = window.innerWidth<768?80:200;
+  for(let i=0;i<particleCount;i++){
+    particles.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: Math.random()*2+1,
+      dx:(Math.random()-0.5)*1.2,
+      dy:(Math.random()-0.5)*1.2,
+      alpha: Math.random()*0.5+0.2,
+      pulse: Math.random()*0.02+0.01
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+
+    // draw lines
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        let dx = particles[i].x - particles[j].x;
+        let dy = particles[i].y - particles[j].y;
+        let dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(255,0,255,${1-dist/120})`;
+          ctx.lineWidth=0.7;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // draw particles
+    for(let p of particles){
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,255,255,${p.alpha})`;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = "rgba(255,0,255,0.7)";
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // mouse repel
+      let dx = mouse.x - p.x;
+      let dy = mouse.y - p.y;
+      let dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < mouse.radius){
+        let angle = Math.atan2(dy, dx);
+        p.x -= Math.cos(angle)*1.5;
+        p.y -= Math.sin(angle)*1.5;
+      }
+
+      p.alpha += p.pulse;
+      if(p.alpha>0.9 || p.alpha<0.2) p.pulse*=-1;
+      p.x += p.dx;
+      p.y += p.dy;
+      if(p.x<0||p.x>w) p.dx*=-1;
+      if(p.y<0||p.y>h) p.dy*=-1;
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+
+</body>
+</html>
